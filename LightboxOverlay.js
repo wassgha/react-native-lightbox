@@ -20,9 +20,10 @@ var {
   View,
 } = require('react-native');
 
+var ViewTransformer = require('react-native-view-transformer').default;
 var WINDOW_HEIGHT = Dimensions.get('window').height;
 var WINDOW_WIDTH = Dimensions.get('window').width;
-var DRAG_DISMISS_THRESHOLD = 150;
+var DRAG_DISMISS_THRESHOLD = 100;
 var STATUS_BAR_OFFSET = (Platform.OS === 'android' ? -25 : 0);
 
 var LightboxOverlay = React.createClass({
@@ -43,12 +44,14 @@ var LightboxOverlay = React.createClass({
     onOpen:          PropTypes.func,
     onClose:         PropTypes.func,
     swipeToDismiss:  PropTypes.bool,
+    transform:       PropTypes.bool,
   },
 
   getInitialState: function() {
     return {
       isAnimating: false,
       isPanning: false,
+      isClosing: false,
       target: {
         x: 0,
         y: 0,
@@ -64,44 +67,6 @@ var LightboxOverlay = React.createClass({
       springConfig: { tension: 30, friction: 7 },
       backgroundColor: 'black',
     };
-  },
-
-  componentWillMount: function() {
-    this._panResponder = PanResponder.create({
-      // Ask to be the responder:
-      onStartShouldSetPanResponder: (evt, gestureState) => !this.state.isAnimating,
-      onStartShouldSetPanResponderCapture: (evt, gestureState) => !this.state.isAnimating,
-      onMoveShouldSetPanResponder: (evt, gestureState) => !this.state.isAnimating,
-      onMoveShouldSetPanResponderCapture: (evt, gestureState) => !this.state.isAnimating,
-
-      onPanResponderGrant: (evt, gestureState) => {
-        this.state.pan.setValue(0);
-        this.setState({ isPanning: true });
-      },
-      onPanResponderMove: Animated.event([
-        null,
-        {dy: this.state.pan}
-      ]),
-      onPanResponderTerminationRequest: (evt, gestureState) => true,
-      onPanResponderRelease: (evt, gestureState) => {
-        if(Math.abs(gestureState.dy) > DRAG_DISMISS_THRESHOLD) {
-          this.setState({
-            isPanning: false,
-            target: {
-              y: gestureState.dy,
-              x: gestureState.dx,
-              opacity: 1 - Math.abs(gestureState.dy / WINDOW_HEIGHT)
-            }
-          });
-          this.close();
-        } else {
-          Animated.spring(
-            this.state.pan,
-            {toValue: 0, ...this.props.springConfig}
-          ).start(() => { this.setState({ isPanning: false }); });
-        }
-      },
-    });
   },
 
   componentDidMount: function() {
@@ -131,6 +96,7 @@ var LightboxOverlay = React.createClass({
   close: function() {
     StatusBar.setHidden(false, 'fade');
     this.setState({
+      isClosing: true,
       isAnimating: true,
     });
     Animated.spring(
@@ -139,9 +105,48 @@ var LightboxOverlay = React.createClass({
     ).start(() => {
       this.setState({
         isAnimating: false,
+        isClosing: false,
       });
       this.props.onClose();
     });
+  },
+
+  onViewTransformed: function({translateY}) {
+    this.state.pan.setValue(translateY);
+    if (Math.abs(translateY) > 0) {
+      if (!this.state.isPanning) {
+        this.setState({
+          isPanning: true,
+        });
+      }
+    } else {
+      if (this.state.isPanning) {
+        this.setState({
+          isPanning: false,
+        });
+      }
+    }
+  },
+
+  onTransformGestureReleased: function({translateX, translateY}) {
+    const { swipeToDismiss } = this.props;
+
+    if(Math.abs(translateY) > DRAG_DISMISS_THRESHOLD && swipeToDismiss) {
+      this.setState({
+        isPanning: false,
+        target: {
+          y: translateY,
+          x: translateX,
+          opacity: 1 - Math.abs(translateY / WINDOW_HEIGHT)
+        }
+      });
+      this.close();
+    } else {
+      Animated.spring(
+        this.state.pan,
+        {toValue: 0, ...this.props.springConfig}
+      ).start(() => { this.setState({ isPanning: false }); });
+    }
   },
 
   componentWillReceiveProps: function(props) {
@@ -155,6 +160,7 @@ var LightboxOverlay = React.createClass({
       isOpen,
       renderHeader,
       swipeToDismiss,
+      transform,
       origin,
       backgroundColor,
     } = this.props;
@@ -170,11 +176,6 @@ var LightboxOverlay = React.createClass({
     var lightboxOpacityStyle = {
       opacity: openVal.interpolate({inputRange: [0, 1], outputRange: [0, target.opacity]})
     };
-
-    var handlers;
-    if(swipeToDismiss) {
-      handlers = this._panResponder.panHandlers;
-    }
 
     var dragStyle;
     if(isPanning) {
@@ -200,24 +201,70 @@ var LightboxOverlay = React.createClass({
         </TouchableOpacity>
       )
     )}</Animated.View>);
-    var content = (
-      <Animated.View style={[openStyle, dragStyle]} {...handlers}>
-        {this.props.children}
-      </Animated.View>
-    );
-    if(this.props.navigator) {
-      return (
-        <View>
-          {background}
-          {content}
-          {header}
-        </View>
+
+    function onViewTransformed({translateY}) {
+      this.state.pan.setValue(translateY);
+      if (Math.abs(translateY) > 0) {
+        if (!this.state.isPanning) {
+          this.setState({
+            isPanning: true,
+          });
+        }
+      } else {
+        if (this.state.isPanning) {
+          this.setState({
+            isPanning: false,
+          });
+        }
+      }
+    }
+
+    function onTransformGestureReleased({translateX, translateY}) {
+      if(Math.abs(translateY) > DRAG_DISMISS_THRESHOLD && swipeToDismiss) {
+        this.setState({
+          isPanning: false,
+          target: {
+            y: translateY,
+            x: translateX,
+            opacity: 1 - Math.abs(translateY / WINDOW_HEIGHT)
+          }
+        });
+        this.close();
+      } else {
+        Animated.spring(
+          this.state.pan,
+          {toValue: 0, ...this.props.springConfig}
+        ).start(() => { this.setState({ isPanning: false }); });
+      }
+    }
+
+    var content;
+
+    if (this.state.isClosing || !transform) {
+      content = this.props.children;
+    } else {
+      content = (
+        <ViewTransformer
+          style={{flex: 1}}
+          enableTransform={true}
+          enableScale={true}
+          enableTranslate={true}
+          enableResistance={true}
+          maxScale={3}
+          onTransformGestureReleased={this.onTransformGestureReleased}
+          onViewTransformed={this.onViewTransformed}
+        >
+          {this.props.children}
+        </ViewTransformer>
       );
     }
+
     return (
       <Modal visible={isOpen} transparent={true}>
         {background}
-        {content}
+        <Animated.View style={[openStyle, dragStyle]} >
+          {content}
+        </Animated.View>
         {header}
       </Modal>
     );
