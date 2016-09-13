@@ -201,42 +201,6 @@ var LightboxOverlay = React.createClass({
       )
     )}</Animated.View>);
 
-    function onViewTransformed({translateY}) {
-      this.state.pan.setValue(translateY);
-      if (Math.abs(translateY) > 0) {
-        if (!this.state.isPanning) {
-          this.setState({
-            isPanning: true,
-          });
-        }
-      } else {
-        if (this.state.isPanning) {
-          this.setState({
-            isPanning: false,
-          });
-        }
-      }
-    }
-
-    function onTransformGestureReleased({translateX, translateY}) {
-      if(Math.abs(translateY) > DRAG_DISMISS_THRESHOLD && swipeToDismiss) {
-        this.setState({
-          isPanning: false,
-          target: {
-            y: translateY,
-            x: translateX,
-            opacity: 1 - Math.abs(translateY / WINDOW_HEIGHT)
-          }
-        });
-        this.close();
-      } else {
-        Animated.spring(
-          this.state.pan,
-          {toValue: 0, ...this.props.springConfig}
-        ).start(() => { this.setState({ isPanning: false }); });
-      }
-    }
-
     var content;
 
     if (this.state.isClosing || !transform) {
