@@ -24,7 +24,6 @@ var ViewTransformer = require('react-native-view-transformer').default;
 var WINDOW_HEIGHT = Dimensions.get('window').height;
 var WINDOW_WIDTH = Dimensions.get('window').width;
 var DRAG_DISMISS_THRESHOLD = 100;
-var STATUS_BAR_OFFSET = (Platform.OS === 'android' ? -25 : 0);
 
 var LightboxOverlay = React.createClass({
   propTypes: {
@@ -187,7 +186,7 @@ var LightboxOverlay = React.createClass({
 
     var openStyle = [styles.open, {
       left:   openVal.interpolate({inputRange: [0, 1], outputRange: [origin.x, target.x]}),
-      top:    openVal.interpolate({inputRange: [0, 1], outputRange: [origin.y + STATUS_BAR_OFFSET, target.y + STATUS_BAR_OFFSET]}),
+      top:    openVal.interpolate({inputRange: [0, 1], outputRange: [origin.y, target.y]}),
       width:  openVal.interpolate({inputRange: [0, 1], outputRange: [origin.width, WINDOW_WIDTH]}),
       height: openVal.interpolate({inputRange: [0, 1], outputRange: [origin.height, WINDOW_HEIGHT]}),
     }];
