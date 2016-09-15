@@ -23,7 +23,7 @@ var {
 var ViewTransformer = require('react-native-view-transformer').default;
 var WINDOW_HEIGHT = Dimensions.get('window').height;
 var WINDOW_WIDTH = Dimensions.get('window').width;
-var DRAG_DISMISS_THRESHOLD = 100;
+var DRAG_DISMISS_THRESHOLD = 100; // Y-axis drag value near the top/bottom edge of the screen
 
 var LightboxOverlay = React.createClass({
   propTypes: {
