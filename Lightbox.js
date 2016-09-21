@@ -34,13 +34,13 @@ var Lightbox = React.createClass({
       friction:      PropTypes.number,
     }),
     swipeToDismiss:  PropTypes.bool,
-    transform:       PropTypes.bool,
+    pinchToZoom:     PropTypes.bool,
   },
 
   getDefaultProps: function() {
     return {
       swipeToDismiss: true,
-      transform: true,
+      pinchToZoom: true,
       onOpen: () => {},
       onClose: () => {},
     };
@@ -77,7 +77,7 @@ var Lightbox = React.createClass({
       origin: this.state.origin,
       renderHeader: this.props.renderHeader,
       swipeToDismiss: this.props.swipeToDismiss,
-      transform: this.props.transform,
+      pinchToZoom: this.props.pinchToZoom,
       springConfig: this.props.springConfig,
       backgroundColor: this.props.backgroundColor,
       children: this.getContent(),

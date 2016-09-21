@@ -43,7 +43,7 @@ var LightboxOverlay = React.createClass({
     onOpen:          PropTypes.func,
     onClose:         PropTypes.func,
     swipeToDismiss:  PropTypes.bool,
-    transform:       PropTypes.bool,
+    pinchToZoom:       PropTypes.bool,
   },
 
   getInitialState: function() {
@@ -159,7 +159,7 @@ var LightboxOverlay = React.createClass({
       isOpen,
       renderHeader,
       swipeToDismiss,
-      transform,
+      pinchToZoom,
       origin,
       backgroundColor,
     } = this.props;
@@ -203,7 +203,7 @@ var LightboxOverlay = React.createClass({
 
     var content;
 
-    if (this.state.isClosing || !transform) {
+    if (this.state.isClosing || !pinchToZoom) {
       content = this.props.children;
     } else {
       content = (
