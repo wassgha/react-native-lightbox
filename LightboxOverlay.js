@@ -43,7 +43,7 @@ var LightboxOverlay = React.createClass({
     onOpen:          PropTypes.func,
     onClose:         PropTypes.func,
     swipeToDismiss:  PropTypes.bool,
-    pinchToZoom:       PropTypes.bool,
+    pinchToZoom:     PropTypes.bool,
   },
 
   getInitialState: function() {
