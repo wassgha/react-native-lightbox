@@ -22,24 +22,22 @@ var Lightbox = React.createClass({
   mixins: [TimerMixin],
 
   propTypes: {
-    activeProps:       PropTypes.object,
-    renderHeader:      PropTypes.func,
-    renderContent:     PropTypes.func,
-    underlayColor:     PropTypes.string,
-    backgroundColor:   PropTypes.string,
-    onOpen:            PropTypes.func,
-    onClose:           PropTypes.func,
-    springConfig:      PropTypes.shape({
-      tension:         PropTypes.number,
-      friction:        PropTypes.number,
+    activeProps: PropTypes.object,
+    renderHeader: PropTypes.func,
+    renderContent: PropTypes.func,
+    underlayColor: PropTypes.string,
+    backgroundColor: PropTypes.string,
+    onOpen: PropTypes.func,
+    onClose: PropTypes.func,
+    springConfig: PropTypes.shape({
+      tension: PropTypes.number,
+      friction: PropTypes.number,
       useNativeDriver: PropTypes.bool,
     }),
-    animations: PropTypes.shape({
-      opening: PropTypes.bool,
-      closing: PropTypes.bool,
-    }),
-    swipeToDismiss:    PropTypes.bool,
-    pinchToZoom:       PropTypes.bool,
+    animateOpening: PropTypes.bool,
+    animateClosing: PropTypes.bool,
+    swipeToDismiss: PropTypes.bool,
+    pinchToZoom: PropTypes.bool,
   },
 
   getDefaultProps: function() {
@@ -84,7 +82,8 @@ var Lightbox = React.createClass({
       swipeToDismiss: this.props.swipeToDismiss,
       pinchToZoom: this.props.pinchToZoom,
       springConfig: this.props.springConfig,
-      animations: this.props.animations,
+      animateOpening: this.props.animateOpening,
+      animateClosing: this.props.animateClosing,
       backgroundColor: this.props.backgroundColor,
       children: this.getContent(),
       onClose: this.onClose,
@@ -96,8 +95,7 @@ var Lightbox = React.createClass({
       this.props.onOpen();
 
       this.setState({
-        isOpen: (this.props.navigator ? true : false),
-        isAnimating: true,
+        isOpen: true,
         origin: {
           width,
           height,
@@ -113,10 +111,6 @@ var Lightbox = React.createClass({
           var routes = this.props.navigator.getCurrentRoutes();
           routes.push(route);
           this.props.navigator.immediatelyResetRouteStack(routes);
-        } else {
-          this.setState({
-            isOpen: true,
-          });
         }
         this.setTimeout(() => {
           this.state.layoutOpacity.setValue(0);

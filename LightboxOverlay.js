@@ -16,7 +16,6 @@ var {
   StyleSheet,
   Text,
   TouchableOpacity,
-  Easing,
 } = require('react-native');
 
 var ViewTransformer = require('react-native-view-transformer').default;
@@ -29,27 +28,25 @@ var CLOSING_THRESHOLD = 100;
 var LightboxOverlay = React.createClass({
   propTypes: {
     origin: PropTypes.shape({
-      x:        PropTypes.number,
-      y:        PropTypes.number,
-      width:    PropTypes.number,
-      height:   PropTypes.number,
+      x: PropTypes.number,
+      y: PropTypes.number,
+      width: PropTypes.number,
+      height: PropTypes.number,
     }),
     springConfig: PropTypes.shape({
-      tension:         PropTypes.number,
-      friction:        PropTypes.number,
+      tension: PropTypes.number,
+      friction: PropTypes.number,
       useNativeDriver: PropTypes.bool,
     }),
-    animations: PropTypes.shape({
-      opening: PropTypes.bool,
-      closing: PropTypes.bool,
-    }),
+    animateOpening: PropTypes.bool,
+    animateClosing: PropTypes.bool,
     backgroundColor: PropTypes.string,
-    isOpen:          PropTypes.bool,
-    renderHeader:    PropTypes.func,
-    onOpen:          PropTypes.func,
-    onClose:         PropTypes.func,
-    swipeToDismiss:  PropTypes.bool,
-    pinchToZoom:     PropTypes.bool,
+    isOpen: PropTypes.bool,
+    renderHeader: PropTypes.func,
+    onOpen: PropTypes.func,
+    onClose: PropTypes.func,
+    swipeToDismiss: PropTypes.bool,
+    pinchToZoom: PropTypes.bool,
   },
 
   getInitialState: function() {
@@ -69,7 +66,8 @@ var LightboxOverlay = React.createClass({
   getDefaultProps: function() {
     return {
       springConfig: { tension: 30, friction: 7, useNativeDriver: true },
-      animations: { opening: true, closing: true },
+      animateOpening: true,
+      animateClosing: false,
       backgroundColor: 'black',
       renderHeader: (close) => (
         <TouchableOpacity onPress={close}>
@@ -113,9 +111,9 @@ var LightboxOverlay = React.createClass({
       StatusBar.setHidden(true, 'fade');
     }
 
-    const { animations } = this.props;
+    const { animateOpening } = this.props;
 
-    if (animations.opening) {
+    if (animateOpening) {
       Animated.spring(
         this.state.visibility,
         { toValue: 1, ...this.props.springConfig }
@@ -130,8 +128,8 @@ var LightboxOverlay = React.createClass({
       StatusBar.setHidden(false, 'fade');
     }
 
-    const { animations } = this.props;
-    if (animations.closing) {
+    const { animateClosing } = this.props;
+    if (animateClosing) {
       Animated.spring(
         this.state.visibility,
         { toValue: 0, ...this.props.springConfig }
@@ -201,9 +199,8 @@ var LightboxOverlay = React.createClass({
 
     var lightboxOpacityStyle = {
       opacity: visibility.interpolate({
-        inputRange: [0, 1],
-        outputRange: [0, 1],
-        easing: Easing.inOut,
+        inputRange: [0, 0.8, 1],
+        outputRange: [0, 0.4, 1],
       })
     };
 
