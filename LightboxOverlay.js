@@ -16,6 +16,7 @@ var {
   StyleSheet,
   Text,
   TouchableOpacity,
+  Easing,
 } = require('react-native');
 
 var ViewTransformer = require('react-native-view-transformer').default;
@@ -201,7 +202,8 @@ var LightboxOverlay = React.createClass({
     var lightboxOpacityStyle = {
       opacity: visibility.interpolate({
         inputRange: [0, 1],
-        outputRange: [0, 1]
+        outputRange: [0, 1],
+        easing: Easing.inOut,
       })
     };
 
