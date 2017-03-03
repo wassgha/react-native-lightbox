@@ -22,19 +22,24 @@ var Lightbox = React.createClass({
   mixins: [TimerMixin],
 
   propTypes: {
-    activeProps:     PropTypes.object,
-    renderHeader:    PropTypes.func,
-    renderContent:   PropTypes.func,
-    underlayColor:   PropTypes.string,
-    backgroundColor: PropTypes.string,
-    onOpen:          PropTypes.func,
-    onClose:         PropTypes.func,
-    springConfig:    PropTypes.shape({
-      tension:       PropTypes.number,
-      friction:      PropTypes.number,
+    activeProps:       PropTypes.object,
+    renderHeader:      PropTypes.func,
+    renderContent:     PropTypes.func,
+    underlayColor:     PropTypes.string,
+    backgroundColor:   PropTypes.string,
+    onOpen:            PropTypes.func,
+    onClose:           PropTypes.func,
+    springConfig:      PropTypes.shape({
+      tension:         PropTypes.number,
+      friction:        PropTypes.number,
+      useNativeDriver: PropTypes.bool,
     }),
-    swipeToDismiss:  PropTypes.bool,
-    pinchToZoom:     PropTypes.bool,
+    animations: PropTypes.shape({
+      opening: PropTypes.bool,
+      closing: PropTypes.bool,
+    }),
+    swipeToDismiss:    PropTypes.bool,
+    pinchToZoom:       PropTypes.bool,
   },
 
   getDefaultProps: function() {
@@ -79,6 +84,7 @@ var Lightbox = React.createClass({
       swipeToDismiss: this.props.swipeToDismiss,
       pinchToZoom: this.props.pinchToZoom,
       springConfig: this.props.springConfig,
+      animations: this.props.animations,
       backgroundColor: this.props.backgroundColor,
       children: this.getContent(),
       onClose: this.onClose,
@@ -86,7 +92,7 @@ var Lightbox = React.createClass({
   },
 
   open: function() {
-    this._root.measure((ox, oy, width, height, px, py) => {
+    this._root.measureInWindow((x, y, width, height) => {
       this.props.onOpen();
 
       this.setState({
@@ -95,8 +101,8 @@ var Lightbox = React.createClass({
         origin: {
           width,
           height,
-          x: px,
-          y: py,
+          x,
+          y,
         },
       }, () => {
         if(this.props.navigator) {
@@ -119,10 +125,6 @@ var Lightbox = React.createClass({
     });
   },
 
-  close: function() {
-    throw new Error('Lightbox.close method is deprecated. Use renderHeader(close) prop instead.')
-  },
-
   onClose: function() {
     this.state.layoutOpacity.setValue(1);
     this.setState({
@@ -136,7 +138,7 @@ var Lightbox = React.createClass({
   },
 
   render: function() {
-    // measure will not return anything useful if we dont attach a onLayout handler on android
+    // measure will not return anything useful if we don't attach an onLayout handler on android
     return (
       <View
         ref={component => this._root = component}
