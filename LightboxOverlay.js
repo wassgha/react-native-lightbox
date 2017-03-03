@@ -65,7 +65,13 @@ var LightboxOverlay = React.createClass({
 
   getDefaultProps: function() {
     return {
-      springConfig: { tension: 30, friction: 7, useNativeDriver: true },
+      springConfig: {
+        tension: 30,
+        friction: 7,
+        // Native animations work better on Android, but
+        // sometimes still have issues on iOS
+        useNativeDriver: Platform.OS === 'android',
+      },
       animateOpening: true,
       animateClosing: false,
       backgroundColor: 'black',
