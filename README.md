@@ -13,7 +13,7 @@ npm install --save react-native-lightbox
 `navigator` property is optional but recommended on iOS, see next section for `Navigator` configuration.
 
 ```js
-vart createReactClass = require('create-react-class');
+var createReactClass = require('create-react-class');
 var Lightbox = require('react-native-lightbox');
 
 var LightboxView = createReactClass({
