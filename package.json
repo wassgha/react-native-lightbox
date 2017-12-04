@@ -32,6 +32,7 @@
   "dependencies": {
     "react-native-view-transformer": "shoutem/react-native-view-transformer#master",
     "create-react-class": "^15.6.2",
+    "prop-types": "^15.5.10",
     "react-timer-mixin": "^0.13.3"
   }
 }
