@@ -297,8 +297,8 @@ var styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: WINDOW_WIDTH,
-    height: WINDOW_HEIGHT,
+    width: '100%',
+    height: '100%',
   },
   open: {
     position: 'absolute',
